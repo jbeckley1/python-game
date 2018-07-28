@@ -60,6 +60,19 @@ class Player_Char(Character):
     def __init__(self):
         Character.__init__(self, [300, 300], "Untitled.bmp")
         self.is_firing = False
+        self.top_speed = 10
+        # The rate at which you gain speed
+        self.acceleration = 2
+
+    def limit_speed(self):
+        if self.velocity[0] > self.top_speed:
+            self.velocity[0] = self.top_speed
+        if self.velocity[1] > self.top_speed:
+            self.velocity[1] = self.top_speed
+        if self.velocity[0] < -self.top_speed:
+            self.velocity[0] = -self.top_speed
+        if self.velocity[1] < -self.top_speed:
+            self.velocity[1] = -self.top_speed
         
 class Bullet(Entity):
     def __init__(self, start_location, velocity, picture):
@@ -89,16 +102,24 @@ def gameLoop():
             mouseCoords = pygame.mouse.get_pos()
             fire(dude.position.center, mouseCoords)
             
-        dude.velocity = [0,0]
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_w]:
-            dude.velocity[1] -= 5
+            dude.velocity[1] -= dude.acceleration
+        elif dude.velocity[1] < 0:
+            dude.velocity[1] += dude.acceleration // 2
         if pressed[pygame.K_s]:
-            dude.velocity[1] += 5
+            dude.velocity[1] += dude.acceleration
+        elif dude.velocity[1] > 0:
+            dude.velocity[1] -= dude.acceleration // 2
         if pressed[pygame.K_a]:
-            dude.velocity[0] -= 5
+            dude.velocity[0] -= dude.acceleration
+        elif dude.velocity[0] < 0:
+            dude.velocity[0] += dude.acceleration // 2
         if pressed[pygame.K_d]:
-            dude.velocity[0] += 5
+            dude.velocity[0] += dude.acceleration
+        elif dude.velocity[0] > 0:
+            dude.velocity[0] -= dude.acceleration // 2
+        dude.limit_speed()
         updateEntities()
         time.sleep(0.01666)
 
@@ -124,7 +145,7 @@ def fire(start, end):
         dy = end[1] - start[1]
         c = math.sqrt(dx * dx + dy * dy)
         velocity = [(speed * dx)/c, (speed * dy) / c]
-        print(start, velocity)
+        #print(start, velocity)
         Bullet(start, velocity, 'bullet.bmp')
         dude.cool_down = 10
 
