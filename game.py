@@ -38,13 +38,12 @@ class Entity:
             self.position = self.position.move(self.sub_pixel)
             self.sub_pixel[0] %= 1
             self.sub_pixel[1] %= 1
-        
-class Player_Char(Entity):
-    def __init__(self):
-        Entity.__init__(self, [300, 300], [0,0], "Untitled.bmp")
+
+class Character(Entity):
+    def __init__(self, starting_pos, picture_filename):
+        Entity.__init__(self, starting_pos, [0,0], picture_filename)
         self.cool_down = 0
         character_list.append(self)
-        self.is_firing = False
     def out_of_bounds(self):
         if self.position.left < 0:
             self.position.left = 0
@@ -56,6 +55,11 @@ class Player_Char(Entity):
             self.position.top = 0
         else:
             return False
+        
+class Player_Char(Character):
+    def __init__(self):
+        Character.__init__(self, [300, 300], "Untitled.bmp")
+        self.is_firing = False
         
 class Bullet(Entity):
     def __init__(self, start_location, velocity, picture):
