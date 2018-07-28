@@ -30,12 +30,12 @@ class Entity:
             return True
         if self.position.top < 0:
             return True
-
 class Player_Char(Entity):
     def __init__(self):
         Entity.__init__(self, [300, 300], [0,0], "Untitled.bmp")
         self.cool_down = 0
         character_list.append(self)
+        self.is_firing = False
     def out_of_bounds(self):
         if self.position.left < 0:
             self.position.left = 0
@@ -63,24 +63,28 @@ background = background.convert()
 background.fill((255, 255, 255))
 
 def gameLoop():
-    global dudeCoords
     while 1:
         for event in pygame.event.get():
-            dude.velocity = [0,0]
-            pressed = pygame.key.get_pressed()
-            if pressed[pygame.K_w]:
-                dude.velocity[1] -= 5
-            if pressed[pygame.K_s]:
-                dude.velocity[1] += 5
-            if pressed[pygame.K_a]:
-                dude.velocity[0] -= 5
-            if pressed[pygame.K_d]:
-                dude.velocity[0] += 5
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                dude.is_firing = True
+            if event.type == pygame.MOUSEBUTTONUP:
+                dude.is_firing = False
             elif event.type == pygame.QUIT:
                 pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouseCoords = pygame.mouse.get_pos()
-                fire(dude.position.center, mouseCoords)
+
+        if dude.is_firing:
+            mouseCoords = pygame.mouse.get_pos()
+            fire(dude.position.center, mouseCoords)
+        dude.velocity = [0,0]
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_w]:
+            dude.velocity[1] -= 5
+        if pressed[pygame.K_s]:
+            dude.velocity[1] += 5
+        if pressed[pygame.K_a]:
+            dude.velocity[0] -= 5
+        if pressed[pygame.K_d]:
+            dude.velocity[0] += 5
         updateEntities()
         time.sleep(0.01666)
 
@@ -119,7 +123,7 @@ def fire(start, end):
         velocity = [(speed * dx)/c, (speed * dy) / c]
         print(start, velocity)
         Bullet(start, velocity, 'bullet.bmp')
-        dude.cool_down = 20
+        dude.cool_down = 10
 
 screen.blit(background, [0,0])
 updateEntities()
