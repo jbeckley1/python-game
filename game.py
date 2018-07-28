@@ -6,6 +6,7 @@ import math
 HEIGHT = 720
 WIDTH = 1280
 
+#lists to hold things
 entity_list = []
 character_list = []
 projectile_list = []
