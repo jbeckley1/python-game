@@ -30,6 +30,15 @@ class Entity:
             return True
         if self.position.top < 0:
             return True
+    def update_position(self):
+        self.position = self.position.move(self.velocity)
+        self.sub_pixel[0] += self.velocity[0] % 1
+        self.sub_pixel[1] += self.velocity[1] % 1
+        if math.fabs(self.sub_pixel[0]) > 0 or math.fabs(self.sub_pixel[1]) > 0:
+            self.position = self.position.move(self.sub_pixel)
+            self.sub_pixel[0] %= 1
+            self.sub_pixel[1] %= 1
+        
 class Player_Char(Entity):
     def __init__(self):
         Entity.__init__(self, [300, 300], [0,0], "Untitled.bmp")
@@ -75,6 +84,7 @@ def gameLoop():
         if dude.is_firing:
             mouseCoords = pygame.mouse.get_pos()
             fire(dude.position.center, mouseCoords)
+            
         dude.velocity = [0,0]
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_w]:
@@ -91,22 +101,13 @@ def gameLoop():
 def updateEntities():
     screen.blit(background, [0,0])
     for entity in projectile_list:
-        #screen.blit(background, entity.position)
-        entity.position = entity.position.move(entity.velocity)
-        entity.sub_pixel[0] += entity.velocity[0] % 1
-        entity.sub_pixel[1] += entity.velocity[1] % 1
-        if math.fabs(entity.sub_pixel[0]) > 0 or math.fabs(entity.sub_pixel[1]) > 0:
-            entity.position = entity.position.move(entity.sub_pixel)
-            entity.sub_pixel[0] %= 1
-            entity.sub_pixel[1] %= 1
+        entity.update_position()
         if entity.out_of_bounds():
             entity = None
         else:
             screen.blit(entity.picture, entity.position)
-        #print(entity.position, entity.velocity)
     for entity in character_list:
-        #screen.blit(background, entity.position)
-        entity.position = entity.position.move(entity.velocity)
+        entity.update_position()
         entity.out_of_bounds()
         screen.blit(entity.picture, entity.position)
     dude.cool_down -= 1
@@ -118,8 +119,6 @@ def fire(start, end):
         dx = end[0] - start[0]
         dy = end[1] - start[1]
         c = math.sqrt(dx * dx + dy * dy)
-        
-        #ratio = (math.sqrt(math.fabs((end[0] - start[0]) ** 2 + (end[1] - start[1]) ** 2)))/10
         velocity = [(speed * dx)/c, (speed * dy) / c]
         print(start, velocity)
         Bullet(start, velocity, 'bullet.bmp')
