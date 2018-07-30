@@ -35,11 +35,11 @@ class Entity:
         if self.velocity[0] > 0:
             self.sub_pixel[0] += self.velocity[0] % 1
         elif self.velocity[0] < 0:
-            self.sub_pixel[0] += -(1 - self.velocity[0] % 1)
+            self.sub_pixel[0] -= self.velocity[0] % 1
         if self.velocity[1] > 0:
             self.sub_pixel[1] += self.velocity[1] % 1
         elif self.velocity[1] < 0:
-            self.sub_pixel[1] += -(1 - self.velocity[0] % 1)
+            self.sub_pixel[1] -= self.velocity[0] % 1
         
 
         if math.fabs(self.sub_pixel[0]) > 0 or math.fabs(self.sub_pixel[1]) > 0:
@@ -87,7 +87,7 @@ class Player_Char(Character):
     def __init__(self):
         Character.__init__(self, [300, 300], "Untitled.bmp")
         self.is_firing = False
-        self.top_speed = 10
+        self.top_speed = 5
         # The rate at which you gain speed
         self.acceleration = 2
 
@@ -168,7 +168,7 @@ def updateEntities():
     pygame.display.flip()
 def fire(start, end):
     if dude.cool_down <= 0:
-        speed = 5
+        speed = 10
         dx = end[0] - start[0]
         dy = end[1] - start[1]
         c = math.sqrt(dx * dx + dy * dy)
