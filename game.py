@@ -32,12 +32,27 @@ class Entity:
             return True
     def update_position(self):
         self.position = self.position.move(self.velocity)
-        self.sub_pixel[0] += self.velocity[0] % 1
-        self.sub_pixel[1] += self.velocity[1] % 1
+        if self.velocity[0] > 0:
+            self.sub_pixel[0] += self.velocity[0] % 1
+        elif self.velocity[0] < 0:
+            self.sub_pixel[0] += -(1 - self.velocity[0] % 1)
+        if self.velocity[1] > 0:
+            self.sub_pixel[1] += self.velocity[1] % 1
+        elif self.velocity[1] < 0:
+            self.sub_pixel[1] += -(1 - self.velocity[0] % 1)
+        
+
         if math.fabs(self.sub_pixel[0]) > 0 or math.fabs(self.sub_pixel[1]) > 0:
             self.position = self.position.move(self.sub_pixel)
+        if self.sub_pixel[0] >= 0:
             self.sub_pixel[0] %= 1
+        else:
+            self.sub_pixel[0] = -(1 - self.sub_pixel[0] % 1)
+            
+        if self.sub_pixel[1] >= 0:
             self.sub_pixel[1] %= 1
+        else:
+            self.sub_pixel[1] = -(1 - self.sub_pixel[1] % 1)
 
 class Character(Entity):
     def __init__(self, starting_pos, picture_filename):
@@ -55,7 +70,19 @@ class Character(Entity):
             self.position.top = 0
         else:
             return False
-        
+
+class Enemy(Character):
+    def __init__(self, starting_pos):
+        Character.__init__(self, starting_pos, "Enemy.png")
+        self.path_counter = 0
+        self.path_radius = 4
+    def path(self):
+        self.velocity = [self.path_radius * math.cos(math.radians(self.path_counter)), self.path_radius * math.sin(math.radians(self.path_counter))]
+    def update_position(self):
+        self.path_counter += 10
+        self.path()
+        super().update_position()
+
 class Player_Char(Character):
     def __init__(self):
         Character.__init__(self, [300, 300], "Untitled.bmp")
@@ -84,6 +111,7 @@ screen = pygame.display.set_mode((1280, 720))
 screen_rect = screen.get_rect()
 pygame.display.set_caption('Bleep blorking game')
 dude = Player_Char()
+enemy = Enemy([500,500])
 background = pygame.Surface(screen.get_size())
 background = background.convert()
 background.fill((255, 255, 255))
