@@ -3,6 +3,7 @@ import os
 import time
 import sys
 import math
+import inspect
 HEIGHT = 720
 WIDTH = 1280
 
@@ -112,6 +113,7 @@ screen_rect = screen.get_rect()
 pygame.display.set_caption('Bleep blorking game')
 dude = Player_Char()
 enemy = Enemy([500,500])
+enemy2 = Enemy([1000,300])
 background = pygame.Surface(screen.get_size())
 background = background.convert()
 background.fill((255, 255, 255))
@@ -149,6 +151,7 @@ def gameLoop():
             dude.velocity[0] -= dude.acceleration // 2
         dude.limit_speed()
         updateEntities()
+        collisionDetection()
         time.sleep(0.01666)
 
 def updateEntities():
@@ -164,8 +167,21 @@ def updateEntities():
         entity.out_of_bounds()
         screen.blit(entity.picture, entity.position)
     dude.cool_down -= 1
-
     pygame.display.flip()
+
+def collisionDetection():
+    for bullet in projectile_list:
+        for char in character_list:
+            #for each enemy
+            if isinstance(char, Enemy):
+               if(bullet.position.center[0] > char.position.left and bullet.position.center[0] < char.position.right):
+                   if(bullet.position.center[1] > char.position.top and bullet.position.center[1] < char.position.bottom):
+                       projectile_list.remove(bullet)
+                       character_list.remove(char)
+                       del bullet
+                       del char
+                       break;
+                        
 def fire(start, end):
     if dude.cool_down <= 0:
         speed = 10
