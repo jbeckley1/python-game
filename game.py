@@ -12,6 +12,8 @@ WIDTH = 1280
 entity_list = []
 character_list = []
 projectile_list = []
+waves = [{"circle enemy": 4}, {"circle enemy": 6}]
+
     
 class Entity:
     def __init__(self, position, velocity, picture):
@@ -127,7 +129,7 @@ class Player_Char(Character):
             self.velocity[0] = -self.top_speed
         if self.velocity[1] < -self.top_speed:
             self.velocity[1] = -self.top_speed
-    wave = 1
+    wave = 0
         
 class Bullet(Entity):
     def __init__(self, start_location, velocity, picture):
@@ -180,20 +182,26 @@ def gameLoop():
             dude.velocity[0] -= dude.acceleration // 2
         dude.limit_speed()
         updateEntities()
+        waveControl()
         time.sleep(0.01666)
-'''
+
 def waveControl():
-    bool waveComplete = true
+    waveComplete = True
     for enemy in character_list:
-        if isinstance(char, Enemy):
-            waveComplete = false
+        if isinstance(enemy, Enemy):
+            waveComplete = False
     if(waveComplete):
         dude.wave += 1
-        loadWave(dude.wave)
-        
+        loadWave(waves[dude.wave])
 
-def loadWave(waveNum):
-'''
+
+def loadWave(wave_dict):
+    for key in wave_dict.keys():
+        num_to_spawn = wave_dict[key]
+
+        for i in range(0, num_to_spawn):
+            spawn(key)
+
 enemy_type_dict = {"circle enemy" : Enemy}
 
 def spawn(typename):
