@@ -12,7 +12,7 @@ WIDTH = 1280
 entity_list = []
 character_list = []
 projectile_list = []
-
+    
 class Entity:
     def __init__(self, position, velocity, picture):
         self.picture = picture
@@ -60,6 +60,8 @@ class Character(Entity):
     def __init__(self, starting_pos, picture_filename):
         Entity.__init__(self, starting_pos, [0,0], picture_filename)
         self.cool_down = 0
+        self.health = 1
+        self.is_enemy = False
         character_list.append(self)
     def out_of_bounds(self):
         if self.position.left < 0:
@@ -72,14 +74,30 @@ class Character(Entity):
             self.position.top = 0
         else:
             return False
-    def ai(self):
-        pass
+
+    def collision_detect(self):
+        for bullet in projectile_list:
+            if bullet.is_enemy_bullet != self.is_enemy:                    
+                if(bullet.position.center[0] > self.position.left and bullet.position.center[0] < self.position.right):
+                    if(bullet.position.center[1] > self.position.top and bullet.position.center[1] < self.position.bottom):
+                       projectile_list.remove(bullet)
+                       self.take_damage(bullet.damage)
+        
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health <= 0:
+            self.die()
+            
+    def die(self):
+        character_list.remove(self)
 
 class Enemy(Character):
     def __init__(self, starting_pos):
         Character.__init__(self, starting_pos, "Enemy.png")
         self.path_counter = 0
+        self.health = 5
         self.path_radius = 4
+        self.is_enemy = True
     def path(self):
         self.velocity = [self.path_radius * math.cos(math.radians(self.path_counter)), self.path_radius * math.sin(math.radians(self.path_counter))]
     def update_position(self):
@@ -93,7 +111,9 @@ class Enemy(Character):
 class Player_Char(Character):
     def __init__(self):
         Character.__init__(self, [300, 300], "Untitled.bmp")
+        self.is_enemy = False
         self.is_firing = False
+        self.health = 10
         self.top_speed = 5
         # The rate at which you gain speed
         self.acceleration = 2
@@ -112,6 +132,8 @@ class Player_Char(Character):
 class Bullet(Entity):
     def __init__(self, start_location, velocity, picture):
         Entity.__init__(self, start_location, velocity, picture)
+        self.damage = 1
+        self.is_enemy_bullet = False
         projectile_list.append(self)
 
 pygame.init()
@@ -122,6 +144,8 @@ dude = Player_Char()
 background = pygame.Surface(screen.get_size())
 background = background.convert()
 background.fill((255, 255, 255))
+
+enemy_type_dict = {"Circle_Enemy" : Enemy}
 
 def gameLoop():
     while 1:
@@ -156,8 +180,6 @@ def gameLoop():
             dude.velocity[0] -= dude.acceleration // 2
         dude.limit_speed()
         updateEntities()
-        collisionDetection()
-        #waveControl()
         time.sleep(0.01666)
 '''
 def waveControl():
@@ -204,23 +226,10 @@ def updateEntities():
     for entity in character_list:
         entity.update_position()
         entity.out_of_bounds()
-        
+        entity.collision_detect()
         screen.blit(entity.picture, entity.position)
     dude.cool_down -= 1
     pygame.display.flip()
-
-def collisionDetection():
-    for bullet in projectile_list:
-        for char in character_list:
-            #for each enemy
-            if isinstance(char, Enemy):
-               if(bullet.position.center[0] > char.position.left and bullet.position.center[0] < char.position.right):
-                   if(bullet.position.center[1] > char.position.top and bullet.position.center[1] < char.position.bottom):
-                       projectile_list.remove(bullet)
-                       character_list.remove(char)
-                       bullet = None
-                       char = None
-                       break
                         
 def fire(start, end):
     if dude.cool_down <= 0:
