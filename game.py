@@ -11,7 +11,7 @@ WIDTH = 1280
 entity_list = []
 character_list = []
 projectile_list = []
-
+    
 class Entity:
     def __init__(self, position, velocity, picture):
         self.picture = picture
@@ -142,6 +142,8 @@ background = pygame.Surface(screen.get_size())
 background = background.convert()
 background.fill((255, 255, 255))
 
+enemy_type_dict = {"Circle_Enemy" : Enemy}
+
 def gameLoop():
     while 1:
         for event in pygame.event.get():
@@ -191,7 +193,7 @@ def updateEntities():
         entity.collision_detect()
         screen.blit(entity.picture, entity.position)
     dude.cool_down -= 1
-    pygame.display.flip()    
+    pygame.display.flip()
 
                         
 def fire(start, end):
