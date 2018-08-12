@@ -4,6 +4,7 @@ import time
 import sys
 import math
 import inspect
+from random import randint
 HEIGHT = 720
 WIDTH = 1280
 
@@ -71,6 +72,8 @@ class Character(Entity):
             self.position.top = 0
         else:
             return False
+    def ai(self):
+        pass
 
 class Enemy(Character):
     def __init__(self, starting_pos):
@@ -83,6 +86,9 @@ class Enemy(Character):
         self.path_counter += 10
         self.path()
         super().update_position()
+    def ai(self):
+        pass
+        
 
 class Player_Char(Character):
     def __init__(self):
@@ -101,6 +107,7 @@ class Player_Char(Character):
             self.velocity[0] = -self.top_speed
         if self.velocity[1] < -self.top_speed:
             self.velocity[1] = -self.top_speed
+    wave = 1
         
 class Bullet(Entity):
     def __init__(self, start_location, velocity, picture):
@@ -112,8 +119,6 @@ screen = pygame.display.set_mode((1280, 720))
 screen_rect = screen.get_rect()
 pygame.display.set_caption('Bleep blorking game')
 dude = Player_Char()
-enemy = Enemy([500,500])
-enemy2 = Enemy([1000,300])
 background = pygame.Surface(screen.get_size())
 background = background.convert()
 background.fill((255, 255, 255))
@@ -152,7 +157,41 @@ def gameLoop():
         dude.limit_speed()
         updateEntities()
         collisionDetection()
+        #waveControl()
         time.sleep(0.01666)
+'''
+def waveControl():
+    bool waveComplete = true
+    for enemy in character_list:
+        if isinstance(char, Enemy):
+            waveComplete = false
+    if(waveComplete):
+        dude.wave += 1
+        loadWave(dude.wave)
+        
+
+def loadWave(waveNum):
+'''
+enemy_type_dict = {"circle enemy" : Enemy}
+
+def spawn(typename):
+    enemy_type_dict[typename](randomSpawn())
+
+def randomSpawn():
+    edge = randint(1, 2)
+    pos = randint(1, 2)
+    spawnLocation = [0,0]
+    if(edge == 1):
+        if(pos == 1):
+            spawnLocation = [randint(0, WIDTH), 0]
+        else:
+            spawnLocation = [randint(0, WIDTH), HEIGHT]
+    else:
+        if(pos == 1):
+            spawnLocation = [0, randint(0, HEIGHT)]
+        else:
+            spawnLocation = [WIDTH, randint(0, HEIGHT)]
+    return spawnLocation
 
 def updateEntities():
     screen.blit(background, [0,0])
@@ -165,6 +204,7 @@ def updateEntities():
     for entity in character_list:
         entity.update_position()
         entity.out_of_bounds()
+        
         screen.blit(entity.picture, entity.position)
     dude.cool_down -= 1
     pygame.display.flip()
@@ -180,7 +220,7 @@ def collisionDetection():
                        character_list.remove(char)
                        bullet = None
                        char = None
-                       break;
+                       break
                         
 def fire(start, end):
     if dude.cool_down <= 0:
@@ -196,4 +236,8 @@ def fire(start, end):
 screen.blit(background, [0,0])
 updateEntities()
 pygame.display.flip()
+spawn("circle enemy")
+spawn("circle enemy")
+spawn("circle enemy")
+spawn("circle enemy")
 gameLoop()
