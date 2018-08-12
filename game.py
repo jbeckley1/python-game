@@ -178,8 +178,8 @@ def collisionDetection():
                    if(bullet.position.center[1] > char.position.top and bullet.position.center[1] < char.position.bottom):
                        projectile_list.remove(bullet)
                        character_list.remove(char)
-                       del bullet
-                       del char
+                       bullet = None
+                       char = None
                        break;
                         
 def fire(start, end):
