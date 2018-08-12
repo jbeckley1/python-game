@@ -192,6 +192,7 @@ def updateEntities():
         screen.blit(entity.picture, entity.position)
     dude.cool_down -= 1
     pygame.display.flip()    
+
                         
 def fire(start, end):
     if dude.cool_down <= 0:
