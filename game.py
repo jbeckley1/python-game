@@ -93,6 +93,18 @@ class Character(Entity):
     def die(self):
         character_list.remove(self)
 
+    def fire(self, end, bullet_speed, bullet_image):
+        start = self.position.center
+        speed = bullet_speed
+        dx = end[0] - start[0]
+        dy = end[1] - start[1]
+        c = math.sqrt(dx * dx + dy * dy)
+        velocity = [(speed * dx)/c, (speed * dy) / c]
+        Bullet(start, velocity, bullet_image, is_enemy_bullet = self.is_enemy)
+
+    def AI(self):
+        pass
+    
 class Enemy(Character):
     def __init__(self, starting_pos):
         Character.__init__(self, starting_pos, "Enemy.png")
@@ -106,8 +118,10 @@ class Enemy(Character):
         self.path_counter += 10
         self.path()
         super().update_position()
-    def ai(self):
-        pass
+    def AI(self):
+        if self.cool_down < 0:
+            super().fire(dude.position.center, 5, "enemy bullet.bmp")
+            self.cool_down = 30
         
 
 class Player_Char(Character):
@@ -129,13 +143,18 @@ class Player_Char(Character):
             self.velocity[0] = -self.top_speed
         if self.velocity[1] < -self.top_speed:
             self.velocity[1] = -self.top_speed
+
+    def fire(self, mouseCoords):
+        if self.cool_down <= 0:
+            super().fire(mouseCoords, 10, "bullet.bmp")
+            self.cool_down = 10
     wave = 0
         
 class Bullet(Entity):
-    def __init__(self, start_location, velocity, picture):
+    def __init__(self, start_location, velocity, picture, is_enemy_bullet = False):
         Entity.__init__(self, start_location, velocity, picture)
         self.damage = 1
-        self.is_enemy_bullet = False
+        self.is_enemy_bullet = is_enemy_bullet
         projectile_list.append(self)
 
 pygame.init()
@@ -161,7 +180,7 @@ def gameLoop():
 
         if dude.is_firing:
             mouseCoords = pygame.mouse.get_pos()
-            fire(dude.position.center, mouseCoords)
+            dude.fire(mouseCoords)
             
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_w]:
@@ -236,20 +255,10 @@ def updateEntities():
         entity.out_of_bounds()
         entity.collision_detect()
         screen.blit(entity.picture, entity.position)
-    dude.cool_down -= 1
+        entity.cool_down -= 1
+        entity.AI()
     pygame.display.flip()
                         
-def fire(start, end):
-    if dude.cool_down <= 0:
-        speed = 10
-        dx = end[0] - start[0]
-        dy = end[1] - start[1]
-        c = math.sqrt(dx * dx + dy * dy)
-        velocity = [(speed * dx)/c, (speed * dy) / c]
-        #print(start, velocity)
-        Bullet(start, velocity, 'bullet.bmp')
-        dude.cool_down = 10
-
 screen.blit(background, [0,0])
 updateEntities()
 pygame.display.flip()
