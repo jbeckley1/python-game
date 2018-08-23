@@ -113,7 +113,10 @@ class Enemy(Character):
         self.path_radius = 4
         self.is_enemy = True
     def path(self):
-        self.velocity = [self.path_radius * math.cos(math.radians(self.path_counter)), self.path_radius * math.sin(math.radians(self.path_counter))]
+        self.velocity = [
+            self.path_radius * math.cos(math.radians(self.path_counter)),
+            self.path_radius * math.sin(math.radians(self.path_counter))
+            ]
     def update_position(self):
         self.path_counter += 10
         self.path()
