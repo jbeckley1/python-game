@@ -112,6 +112,7 @@ class Enemy(Character):
         self.health = 5
         self.path_radius = 4
         self.is_enemy = True
+        self.cool_down = randint(0, 10)
     def path(self):
         self.velocity = [
             self.path_radius * math.cos(math.radians(self.path_counter)),
